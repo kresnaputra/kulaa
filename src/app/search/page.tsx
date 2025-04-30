@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'; // Keep needed icons
+import React, { useState } from 'react';
+import { ChevronDown, Search } from 'lucide-react'; // Keep needed icons
 import OfferCard from '@/components/OfferCard';
 import DishCard from '@/components/DishCard'; // Import the DishCard component
 import RestaurantCard from '@/components/RestaurantCard'; // Import the RestaurantCard component
 import Header from '@/components/Header'; // Import the Header component
+import ContainerSection from '@/components/ContainerSection';
 
 const SearchPage = () => {
   const cuisines = [
@@ -71,6 +72,7 @@ const SearchPage = () => {
   // Sample dish data
   const topDishes = [
     {
+      id: "kfc-tenders-1", // Add ID
       imageUrl: undefined,
       dishName: 'Chicken Tenders',
       restaurantName: 'KFC Northallerton',
@@ -79,6 +81,7 @@ const SearchPage = () => {
       isRecommended: true,
     },
     {
+      id: "mcd-qpc-2", // Add ID
       imageUrl: undefined,
       dishName: 'Quarter Pounder with Ch...',
       restaurantName: 'McDonalds',
@@ -87,6 +90,7 @@ const SearchPage = () => {
       isRecommended: true,
     },
     {
+      id: "kfc-slaw-3", // Add ID
       imageUrl: undefined,
       dishName: 'Cole Slaw',
       restaurantName: 'KFC Northallerton',
@@ -95,6 +99,7 @@ const SearchPage = () => {
       isRecommended: true,
     },
     {
+      id: "kfc-popcorn-4", // Add ID
       imageUrl: undefined,
       dishName: 'Popcorn Chicken',
       restaurantName: 'KFC Northallerton',
@@ -103,6 +108,7 @@ const SearchPage = () => {
       isRecommended: true,
     },
     {
+      id: "mcd-bigmac-5", // Add ID
       imageUrl: undefined,
       dishName: 'Big Mac',
       restaurantName: 'KFC Northallerton',
@@ -110,6 +116,7 @@ const SearchPage = () => {
       price: 20,
       isRecommended: true,
     },
+    // Add more sample dishes if needed
   ];
 
   // Sample data for Restaurants
@@ -163,85 +170,6 @@ const SearchPage = () => {
       imageUrl: '/images/restaurant-nandos.jpg'
     },
   ];
-
-  // Ref for the dishes scroll container
-  const dishesScrollRef = useRef<HTMLDivElement>(null);
-  // Ref for the offers scroll container
-  const offersScrollRef = useRef<HTMLDivElement>(null);
-  // Ref for the restaurants scroll container
-  const restaurantsScrollRef = useRef<HTMLDivElement>(null);
-
-  // State for scroll button disabling
-  const [isOffersAtStart, setIsOffersAtStart] = useState(true);
-  const [isOffersAtEnd, setIsOffersAtEnd] = useState(false);
-  const [isDishesAtStart, setIsDishesAtStart] = useState(true);
-  const [isDishesAtEnd, setIsDishesAtEnd] = useState(false);
-  const [isRestaurantsAtStart, setIsRestaurantsAtStart] = useState(true);
-  const [isRestaurantsAtEnd, setIsRestaurantsAtEnd] = useState(false);
-
-  // Generalized scroll function - adjusted type to accept null
-  const scrollContainer = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
-    if (ref.current) {
-      const scrollAmount = 300; // Adjust scroll amount as needed
-      const currentScroll = ref.current.scrollLeft;
-      const newScroll = direction === 'left' ? currentScroll - scrollAmount : currentScroll + scrollAmount;
-      ref.current.scrollTo({
-        left: newScroll,
-        behavior: 'smooth',
-      });
-    }
-  };
-
-  // Function to check scroll bounds and update button states
-  const checkScrollBounds = (
-    ref: React.RefObject<HTMLDivElement | null>,
-    setAtStart: React.Dispatch<React.SetStateAction<boolean>>,
-    setAtEnd: React.Dispatch<React.SetStateAction<boolean>>
-  ) => {
-    if (ref.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = ref.current;
-      const tolerance = 1; // Tolerance for floating point inaccuracies
-      // Use requestAnimationFrame to ensure state updates after DOM reflow
-      requestAnimationFrame(() => {
-        setAtStart(scrollLeft <= tolerance);
-        setAtEnd(scrollLeft + clientWidth >= scrollWidth - tolerance);
-      });
-    }
-  };
-
-  // Effect to handle scroll event listeners and initial state check
-  useEffect(() => {
-    const offersContainer = offersScrollRef.current;
-    const dishesContainer = dishesScrollRef.current;
-    const restaurantsContainer = restaurantsScrollRef.current;
-
-    const handleOffersScroll = () => checkScrollBounds(offersScrollRef, setIsOffersAtStart, setIsOffersAtEnd);
-    const handleDishesScroll = () => checkScrollBounds(dishesScrollRef, setIsDishesAtStart, setIsDishesAtEnd);
-    const handleRestaurantsScroll = () => checkScrollBounds(restaurantsScrollRef, setIsRestaurantsAtStart, setIsRestaurantsAtEnd);
-
-    const handleResize = () => {
-      handleOffersScroll();
-      handleDishesScroll();
-      handleRestaurantsScroll();
-    };
-
-    // Initial check
-    handleResize();
-
-    // Add listeners
-    offersContainer?.addEventListener('scroll', handleOffersScroll);
-    dishesContainer?.addEventListener('scroll', handleDishesScroll);
-    restaurantsContainer?.addEventListener('scroll', handleRestaurantsScroll);
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup listeners on unmount
-    return () => {
-      offersContainer?.removeEventListener('scroll', handleOffersScroll);
-      dishesContainer?.removeEventListener('scroll', handleDishesScroll);
-      restaurantsContainer?.removeEventListener('scroll', handleRestaurantsScroll);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []); // Empty dependency array ensures this runs only once on mount and cleans up on unmount
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -311,111 +239,33 @@ const SearchPage = () => {
       </main>
 
       {/* Special Offers Section */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Special Offers</h2>
-          <div className="flex space-x-2">
-            {/* Conditionally render Left button */}
-            {!isOffersAtStart && (
-              <button
-                onClick={() => scrollContainer(offersScrollRef, 'left')}
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition duration-200"
-              >
-                <ChevronLeft size={20} />
-              </button>
-            )}
-            {/* Conditionally render Right button */}
-            {!isOffersAtEnd && (
-              <button
-                onClick={() => scrollContainer(offersScrollRef, 'right')}
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition duration-200"
-              >
-                <ChevronRight size={20} />
-              </button>
-            )}
-          </div>
-        </div>
-        {/* Add ref and hide scrollbar */}
-        <div ref={offersScrollRef} className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-          {offers.map((offer, index) => (
-            <OfferCard key={index} {...offer} />
-          ))}
-        </div>
-      </section>
+      <ContainerSection title="Special Offers">
+        {offers.map((offer, index) => (
+          <OfferCard key={index} {...offer} />
+        ))}
+      </ContainerSection>
 
       {/* Top Dishes Section */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Top Dishes in London</h2>
-          <div className="flex space-x-2">
-            {/* Conditionally render Left button */}
-            {!isDishesAtStart && (
-              <button
-                onClick={() => scrollContainer(dishesScrollRef, 'left')}
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition duration-200"
-              >
-                <ChevronLeft size={20} />
-              </button>
-            )}
-            {/* Conditionally render Right button */}
-            {!isDishesAtEnd && (
-              <button
-                onClick={() => scrollContainer(dishesScrollRef, 'right')}
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition duration-200"
-              >
-                <ChevronRight size={20} />
-              </button>
-            )}
-          </div>
-        </div>
-        {/* Add ref and hide scrollbar */}
-        <div ref={dishesScrollRef} className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-          {topDishes.map((dish, index) => (
-            <DishCard key={index} {...dish} />
-          ))}
-        </div>
-      </section>
+      <ContainerSection title="Top Dishes in London">
+        {topDishes.map((dish) => (
+          <DishCard key={dish.id} {...dish} /> // Use dish.id for key and pass id via spread
+        ))}
+      </ContainerSection>
 
       {/* Top Restaurants Section */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Top 5 Restaurants in London</h2>
-          <div className="flex space-x-2">
-            {/* Conditionally render Left button */}
-            {!isRestaurantsAtStart && (
-              <button
-                onClick={() => scrollContainer(restaurantsScrollRef, 'left')}
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition duration-200"
-              >
-                <ChevronLeft size={20} />
-              </button>
-            )}
-            {/* Conditionally render Right button */}
-            {!isRestaurantsAtEnd && (
-              <button
-                onClick={() => scrollContainer(restaurantsScrollRef, 'right')}
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition duration-200"
-              >
-                <ChevronRight size={20} />
-              </button>
-            )}
-          </div>
-        </div>
-        {/* Add ref and hide scrollbar */}
-        <div ref={restaurantsScrollRef} className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-          {restaurants.map((restaurant, index) => (
-            <RestaurantCard
-              key={index}
-              id={restaurant.id}
-              name={restaurant.name}
-              rating={restaurant.rating}
-              location={restaurant.location}
-              tags={restaurant.tags}
-              imageUrl={restaurant.imageUrl}
-            />
-          ))}
-        </div>
-      </section>
+      <ContainerSection title="Top 5 Restaurants in London">
+        {restaurants.map((restaurant, index) => (
+          <RestaurantCard
+            key={index}
+            id={restaurant.id}
+            name={restaurant.name}
+            rating={restaurant.rating}
+            location={restaurant.location}
+            tags={restaurant.tags}
+            imageUrl={restaurant.imageUrl}
+          />
+        ))}
+      </ContainerSection>
 
     </div>
   );
