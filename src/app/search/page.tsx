@@ -7,8 +7,12 @@ import DishCard from '@/components/DishCard'; // Import the DishCard component
 import RestaurantCard from '@/components/RestaurantCard'; // Import the RestaurantCard component
 import Header from '@/components/Header'; // Import the Header component
 import ContainerSection from '@/components/ContainerSection';
+import { useGetProductsSpecialOffers } from '@/hooks/use-product';
 
 const SearchPage = () => {
+  const { data: offers, isLoading, error } = useGetProductsSpecialOffers();
+
+
   const cuisines = [
     'Afghan', 'American', 'Argentinian', 'Austrian', 'Bangladeshi', 'Bar & Grill',
     'Brazilian', 'Catalonian', 'Eastern European', 'Fast Food', 'Fish & Chip',
@@ -29,44 +33,6 @@ const SearchPage = () => {
     'East Midlands',
     'East of England',
     'London (Region)'
-  ];
-
-  // Sample offer data
-  const offers = [
-    {
-      id: '1',
-      imageUrl: undefined, // No image
-      discount: '75% OFF',
-      restaurantName: 'KFC Northallerton',
-      location: 'Yorkshire and the Humber, N...', // Truncated example
-      rating: 4.5,
-      offerTitle: 'Craving a Twister Wrap? Buy one Twist...',
-      originalPrice: 15.98,
-      discountedPrice: 11.99,
-    },
-    {
-      id: '2',
-      imageUrl: undefined, // No image
-      discount: '100% OFF', // Note: Image shows 100% OFF, likely a typo, but replicating design
-      restaurantName: 'KFC Northallerton',
-      location: 'Yorkshire and the Humber, N...', // Truncated example
-      rating: 4.5,
-      offerTitle: 'Get a free medium fries and soft drink ...',
-      originalPrice: 12.99,
-      discountedPrice: 12.99, // Assuming 100% off means free with purchase, or price is misleading
-    },
-    {
-      id: '3',
-      imageUrl: undefined, // No image placeholder needed, component handles it
-      discount: '50% OFF',
-      restaurantName: 'Sonnys Chicken',
-      location: 'Northern Ireland, Fermanagh ...', // Truncated example
-      rating: 4.8,
-      offerTitle: 'Friday Special chicken wings 10 pc',
-      originalPrice: 20.00,
-      discountedPrice: 10.00,
-    },
-    // Add more offers if needed
   ];
 
   // Sample dish data
@@ -238,17 +204,54 @@ const SearchPage = () => {
         </div>
       </main>
 
-      {/* Special Offers Section */}
       <ContainerSection title="Special Offers">
-        {offers.map((offer, index) => (
-          <OfferCard key={index} {...offer} />
-        ))}
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="animate-pulse bg-gray-200 rounded-lg shadow-md overflow-hidden w-full h-[280px]"> 
+              <div className="h-36 bg-gray-300"></div> 
+              <div className="p-3 space-y-2">
+                <div className="h-4 bg-gray-300 rounded w-1/4"></div> 
+                <div className="h-5 bg-gray-300 rounded w-3/4"></div> 
+                <div className="h-4 bg-gray-300 rounded w-1/2"></div> 
+                <div className="h-4 bg-gray-300 rounded w-full"></div> 
+              </div>
+            </div>
+          ))
+        ) : error ? (
+          <p className="text-red-500">Error loading offers: {error.message}</p>
+        ) : (
+          offers?.data.map((offer) => {
+            const discountPercentage = offer.originalPrice > 0 
+              ? Math.round(((offer.originalPrice - offer.discountedPrice) / offer.originalPrice) * 100)
+              : 0;
+            const discountString = `${discountPercentage}% OFF`;
+  
+            const imageUrl = offer.image ? `https://backend.kulaa.co.uk/images/${offer.image}` : undefined;
+  
+            const locationString = `${offer.location.region}, ${offer.location.area}`;
+  
+            return (
+              <OfferCard 
+                key={offer.id}
+                id={offer.id}
+                offerTitle={offer.offerName}
+                discount={discountString}
+                restaurantName={offer.restaurantName}
+                location={locationString}
+                rating={offer.rating}
+                originalPrice={offer.originalPrice}
+                discountedPrice={offer.discountedPrice}
+                imageUrl={imageUrl}
+              />
+            );
+          })
+        )}
       </ContainerSection>
 
       {/* Top Dishes Section */}
       <ContainerSection title="Top Dishes in London">
         {topDishes.map((dish) => (
-          <DishCard key={dish.id} {...dish} /> // Use dish.id for key and pass id via spread
+          <DishCard key={dish.id} {...dish} /> 
         ))}
       </ContainerSection>
 
