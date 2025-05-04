@@ -37,10 +37,7 @@ const ImagePlaceholder = ({ className = "" }: { className?: string }) => (
   </div>
 );
 
-const RestaurantDetailPage = ({ params }: { params: { id: string } }) => {
-  // Fetch actual data based on params.id here
-  console.log("Restaurant ID:", params.id);
-
+const RestaurantDetailPage = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />

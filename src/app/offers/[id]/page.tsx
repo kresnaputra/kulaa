@@ -64,7 +64,7 @@ const offers = [
     // Add more offers if needed
   ];
 
-const OfferDetailPage = ({ }: { params: { id: string } }) => {
+const OfferDetailPage = () => {
   
   const [isOffersAtStart, setIsOffersAtStart] = useState(true);
   const [isOffersAtEnd, setIsOffersAtEnd] = useState(false);
