@@ -23,9 +23,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   tags,
 }) => {
   return (
-    <Link href={`/restaurant/${id}`} className="block flex-shrink-0 w-72 bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+    <Link href={`/restaurant/${id}`} className="block flex-shrink-0 w-96 bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-200">
       {/* Image Placeholder or Actual Image */}
-      <div className="relative w-full h-40 bg-gray-200 flex items-center justify-center text-gray-400">
+      <div className="relative h-40 w-96 bg-gray-200 flex items-center justify-center text-gray-400">
         {imageUrl ? (
           <Image
             src={imageUrl}

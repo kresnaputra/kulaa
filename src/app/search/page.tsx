@@ -7,11 +7,13 @@ import DishCard from '@/components/DishCard'; // Import the DishCard component
 import RestaurantCard from '@/components/RestaurantCard'; // Import the RestaurantCard component
 import Header from '@/components/Header'; // Import the Header component
 import ContainerSection from '@/components/ContainerSection';
-import { useGetProductsSpecialOffers } from '@/hooks/use-product';
+import { useGetProductsSpecialOffers, useGetProductsTopDishes, useGetTopRestaurant } from '@/hooks/use-product';
+import ProductCardSkeleton from '@/components/ProductCardSkeleton';
 
 const SearchPage = () => {
   const { data: offers, isLoading, error } = useGetProductsSpecialOffers();
-
+  const { data: topDishes, isLoading: topDishesLoading, error: topDishesError } = useGetProductsTopDishes();
+  const { data: topRestaurants, isLoading: restaurantsLoading, error: restaurantsError } = useGetTopRestaurant();
 
   const cuisines = [
     'Afghan', 'American', 'Argentinian', 'Austrian', 'Bangladeshi', 'Bar & Grill',
@@ -33,108 +35,6 @@ const SearchPage = () => {
     'East Midlands',
     'East of England',
     'London (Region)'
-  ];
-
-  // Sample dish data
-  const topDishes = [
-    {
-      id: "kfc-tenders-1", // Add ID
-      imageUrl: undefined,
-      dishName: 'Chicken Tenders',
-      restaurantName: 'KFC Northallerton',
-      address: '32 High Street, Northallerton, North Yorkshire...', // Truncated
-      price: 20,
-      isRecommended: true,
-    },
-    {
-      id: "mcd-qpc-2", // Add ID
-      imageUrl: undefined,
-      dishName: 'Quarter Pounder with Ch...',
-      restaurantName: 'McDonalds',
-      address: '472 Elizabeth St, Melbourne VIC 3000',
-      price: 20,
-      isRecommended: true,
-    },
-    {
-      id: "kfc-slaw-3", // Add ID
-      imageUrl: undefined,
-      dishName: 'Cole Slaw',
-      restaurantName: 'KFC Northallerton',
-      address: '32 High Street, Northallerton, North Yorkshire...',
-      price: 5,
-      isRecommended: true,
-    },
-    {
-      id: "kfc-popcorn-4", // Add ID
-      imageUrl: undefined,
-      dishName: 'Popcorn Chicken',
-      restaurantName: 'KFC Northallerton',
-      address: '32 High Street, Northallerton, North Yorkshire...',
-      price: 20,
-      isRecommended: true,
-    },
-    {
-      id: "mcd-bigmac-5", // Add ID
-      imageUrl: undefined,
-      dishName: 'Big Mac',
-      restaurantName: 'KFC Northallerton',
-      address: '32 High Street, Northallerton, North Yorkshire...',
-      price: 20,
-      isRecommended: true,
-    },
-    // Add more sample dishes if needed
-  ];
-
-  // Sample data for Restaurants
-  const restaurants = [
-    {
-      id: 'kfc-northallerton',
-      name: 'KFC Northallerton',
-      rating: 4.5,
-      location: 'Yorkshire and the Humber, North Yorkshire',
-      tags: ['Chicken', 'Fast Food'],
-      imageUrl: '/images/restaurant-kfc.jpg'
-    },
-    {
-      id: 'sonnys-chicken',
-      name: 'Sonnys Chicken',
-      rating: 4.8,
-      location: 'Northern Ireland, Fermanagh and Omagh',
-      tags: ['Chicken', 'American'],
-      imageUrl: '/images/restaurant-sonnys.jpg'
-    },
-    {
-      id: 'gbk-covent-garden',
-      name: 'Gourmet Burger Kitchen',
-      rating: 4.2,
-      location: 'London, Covent Garden',
-      tags: ['Burger', 'Gourmet'],
-      imageUrl: '/images/restaurant-gbk.jpg'
-    },
-    {
-      id: 'pizza-express-deansgate',
-      name: 'Pizza Express',
-      rating: 4.0,
-      location: 'Manchester, Deansgate',
-      tags: ['Pizza', 'Italian'],
-      imageUrl: '/images/restaurant-pizzaexpress.jpg'
-    },
-    {
-      id: 'wagamama-bullring',
-      name: 'Wagamama',
-      rating: 4.6,
-      location: 'Birmingham, Bullring',
-      tags: ['Japanese', 'Noodles'],
-      imageUrl: '/images/restaurant-wagamama.jpg'
-    },
-    {
-      id: 'nandos-cabot-circus',
-      name: 'Nandos',
-      rating: 4.3,
-      location: 'Bristol, Cabot Circus',
-      tags: ['Chicken', 'Portuguese'],
-      imageUrl: '/images/restaurant-nandos.jpg'
-    },
   ];
 
   return (
@@ -207,15 +107,7 @@ const SearchPage = () => {
       <ContainerSection title="Special Offers">
         {isLoading ? (
           Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="animate-pulse bg-gray-200 rounded-lg shadow-md overflow-hidden w-full h-[280px]"> 
-              <div className="h-36 bg-gray-300"></div> 
-              <div className="p-3 space-y-2">
-                <div className="h-4 bg-gray-300 rounded w-1/4"></div> 
-                <div className="h-5 bg-gray-300 rounded w-3/4"></div> 
-                <div className="h-4 bg-gray-300 rounded w-1/2"></div> 
-                <div className="h-4 bg-gray-300 rounded w-full"></div> 
-              </div>
-            </div>
+            <ProductCardSkeleton key={index} />
           ))
         ) : error ? (
           <p className="text-red-500">Error loading offers: {error.message}</p>
@@ -238,7 +130,7 @@ const SearchPage = () => {
                 discount={discountString}
                 restaurantName={offer.restaurantName}
                 location={locationString}
-                rating={offer.rating}
+                rating={offer.rating ? offer.rating : 0}
                 originalPrice={offer.originalPrice}
                 discountedPrice={offer.discountedPrice}
                 imageUrl={imageUrl}
@@ -250,24 +142,69 @@ const SearchPage = () => {
 
       {/* Top Dishes Section */}
       <ContainerSection title="Top Dishes in London">
-        {topDishes.map((dish) => (
-          <DishCard key={dish.id} {...dish} /> 
-        ))}
+        {topDishesLoading ? (
+          // Skeleton Loading State
+           Array.from({ length: 4 }).map((_, index) => (
+            <ProductCardSkeleton key={index} /> // Assuming DishCard has a similar skeleton
+          ))
+        ) : topDishesError ? (
+           // Error State
+          <p className="text-red-500">Error loading top dishes: {topDishesError.message}</p>
+        ) : (
+           // Loaded State - Map over topDishes.data
+          topDishes?.data.map((dish) => {
+            // Construct image URL from the first image in the array, if available
+            const imageUrl = dish.images?.[0] ? `https://backend.kulaa.co.uk/images/${dish.images[0]}` : undefined;
+
+            return (
+              <DishCard 
+                key={dish.id} 
+                id={dish.id}
+                dishName={dish.dishName} 
+                price={dish.price} 
+                restaurantName={dish.restaurantName} 
+                address={dish.restaurantAddress} 
+                imageUrl={imageUrl} 
+              /> 
+            );
+          })
+        )}
       </ContainerSection>
 
       {/* Top Restaurants Section */}
-      <ContainerSection title="Top 5 Restaurants in London">
-        {restaurants.map((restaurant, index) => (
-          <RestaurantCard
-            key={index}
-            id={restaurant.id}
-            name={restaurant.name}
-            rating={restaurant.rating}
-            location={restaurant.location}
-            tags={restaurant.tags}
-            imageUrl={restaurant.imageUrl}
-          />
-        ))}
+      <ContainerSection title="Top Restaurants Near You">
+        {restaurantsLoading ? (
+          // Skeleton Loading State
+          Array.from({ length: 3 }).map((_, index) => (
+            <ProductCardSkeleton key={index} /> // Using product skeleton for now
+          ))
+        ) : restaurantsError ? (
+          // Error State
+          <p className="text-red-500">Error loading top restaurants: {restaurantsError.message}</p>
+        ) : (
+          // Loaded State - Map over topRestaurants.data
+          topRestaurants?.data.map((restaurant) => {
+            // Construct image URL (assuming logo or first image)
+            const imageUrl = restaurant.logo ? `https://backend.kulaa.co.uk/images/${restaurant.logo}` 
+                          : restaurant.images?.[0] ? `https://backend.kulaa.co.uk/images/${restaurant.images[0]}` 
+                          : undefined;
+            // Format location string
+            const locationString = `${restaurant.location.area}, ${restaurant.location.region}`;
+            const rating = restaurant.rating; // Use the direct rating for now
+            
+            return (
+              <RestaurantCard
+                key={restaurant.id}
+                id={restaurant.id} 
+                name={restaurant.name} 
+                location={locationString} 
+                tags={restaurant.tags} 
+                rating={rating} 
+                imageUrl={imageUrl} 
+              />
+            );
+          })
+        )}
       </ContainerSection>
 
     </div>

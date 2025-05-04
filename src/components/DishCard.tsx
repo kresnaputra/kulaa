@@ -24,8 +24,8 @@ const DishCard: React.FC<DishCardProps> = ({
 }) => {
   return (
     <Link href={`/dish/${id}`} className="block group">
-      <div className="bg-white rounded-lg shadow-md overflow-hidden w-full h-full flex flex-col group-hover:shadow-lg transition-shadow duration-200">
-        <div className="relative h-36 bg-gray-200 flex items-center justify-center text-gray-500">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden w-72 h-full flex flex-col group-hover:shadow-lg transition-shadow duration-200">
+        <div className="relative h-36 w-full bg-gray-200 flex items-center justify-center text-gray-500">
           {imageUrl ? (
             <Image
               src={imageUrl}
